@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { createJobPost } from "../../api/job";
+import { createJobPost, updateJobPostById } from "../../api/job";
 import styles from "./JobPost.module.css";
 import { DEFAULT_SKILLS } from "../../utils/constant";
+import { useLocation } from "react-router-dom";
 
 export default function JobPost() {
+    const { state } = useLocation();
+    const [stateData] = useState(state?.jobDetails);
     const [formData, setFormData] = useState({
-        companyName: "",
-        logoUrl: "",
-        title: "",
-        description: "",
-        salary: "",
-        location: "",
-        duration: "",
-        locationType: "",
-        skills: [],
-        information: "",
-        jobType: "",
-        about: "",
+        companyName: "" || stateData?.companyName,
+        logoUrl: "" || stateData?.logoUrl,
+        title: "" || stateData?.title,
+        description: "" || stateData?.description,
+        salary: "" || stateData?.salary,
+        location: "" || stateData?.location,
+        duration: "" || stateData?.duration,
+        locationType: "" || stateData?.locationType,
+        skills: stateData?.skills || [],
+        information: "" || stateData?.information,
+        jobType: "" || stateData?.jobType,
+        about: "" || stateData?.about,
     });
 
     const handleChange = (event) => {
@@ -38,6 +41,11 @@ export default function JobPost() {
         ) {
             alert("Please fill in all fields.");
 
+            return;
+        }
+
+        if (state?.edit) {
+            await updateJobPostById(stateData._id, formData);
             return;
         }
 
@@ -147,8 +155,8 @@ export default function JobPost() {
                         onChange={handleChange}
                     >
                         <option value="">Select job type</option>
-                        <option value="Full-time">Full-time</option>
-                        <option value="Part-time">Part-time</option>
+                        <option value="Fulltime">Full-time</option>
+                        <option value="Parttime">Part-time</option>
                     </select>
                 </div>
 
@@ -249,7 +257,7 @@ export default function JobPost() {
                 </div>
             </div>
             <button onClick={handleSubmit} className={styles.add}>
-                {"+ Add Job "}
+                {state?.edit ? "Edit Job" : "+ Add Job "}
             </button>
             <button className={styles.cancel}>Cancel</button>
         </div>
