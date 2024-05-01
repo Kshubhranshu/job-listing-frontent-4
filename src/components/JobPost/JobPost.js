@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { createJobPost, updateJobPostById } from "../../api/job";
 import styles from "./JobPost.module.css";
 import { DEFAULT_SKILLS } from "../../utils/constant";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function JobPost() {
     const { state } = useLocation();
+    const navigate = useNavigate();
     const [stateData] = useState(state?.jobDetails);
     const [formData, setFormData] = useState({
         companyName: "" || stateData?.companyName,
@@ -49,7 +50,11 @@ export default function JobPost() {
             return;
         }
 
-        await createJobPost(formData);
+        const result = await createJobPost(formData);
+        if (result?.isTokenInValid) {
+            localStorage.clear();
+            navigate("/login");
+        }
     };
 
     const addSkills = (event) => {
